@@ -1,0 +1,6 @@
+reference: "test_data/test_mutated.fasta" # Don't include directory
+sample_sheet: "test_data/sample_sheet.tsv" # Don't include directory
+outdir: "../../experiment/variant_calling_snakemake" # relative path to Snakefile
+suffix : ["_R1","_R2"]
+cpu: 20
+w_size: 50000
