@@ -25,18 +25,6 @@ rule bamstats:
         bamtools stats -in {input} | grep -v "*" > {output}
         """
 
-rule faidx:
-    conda:
-        os.path.join(workflow.basedir, "envs/envs.yaml")
-    input:
-        os.path.join(config["outdir"],"ref","ref.fasta")
-    output:
-        os.path.join(config["outdir"],"ref","ref.fasta.fai")
-    shell:
-        """
-        samtools faidx {input}
-        """
-
 rule make_ref_window:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -132,5 +120,5 @@ rule multiqc:
         """
         multiqc \
         -o {params.output_dir} \
-        {params.input_dir} 
+        {params.input_dir}
         """

@@ -14,11 +14,14 @@ rule index_reference:
     input:
         ref = os.path.join(config["outdir"], "ref", "ref.fasta")
     output:
-        ref_bwt = os.path.join(config["outdir"], "ref", "ref.fasta.bwt")
+        ref_bwt = os.path.join(config["outdir"], "ref", "ref.fasta.bwt"),
+        ref_fai = os.path.join(config["outdir"], "ref", "ref.fasta.fai")
     shell:
         """
         bwa index {input.ref}
+        samtools faidx {input.ref}
         """
+
 rule bwa_gpu:
     input:
         unpack(get_fastq2),
