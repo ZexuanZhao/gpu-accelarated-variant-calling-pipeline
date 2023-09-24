@@ -47,6 +47,8 @@ rule genomeCov:
         bed = os.path.join(config["outdir"],"ref","ref.window.bed")
     output:
         os.path.join(config["outdir"], "qc", "coverage", "{sample}_coverage.txt")
+    threads:
+        config["cpu"]
     shell:
         """
         bedtools coverage \
