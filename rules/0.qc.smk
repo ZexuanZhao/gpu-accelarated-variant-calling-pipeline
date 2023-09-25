@@ -8,6 +8,8 @@ rule fastqc:
         r2=os.path.join(config["outdir"], "qc", "fastqc", "{sample}" + config["suffix"][1] + "_fastqc.zip"),
     params:
         outdir = os.path.join(config["outdir"], "qc", "fastqc")
+    threads:
+        2
     shell:
         """
         fastqc --quiet --outdir {params.outdir} --noextract -f fastq {input} -t 2
