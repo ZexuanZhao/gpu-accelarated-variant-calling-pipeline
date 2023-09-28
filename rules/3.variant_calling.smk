@@ -23,6 +23,7 @@ rule deepvariant:
     shell:
         '''
         docker run \
+            --rm \
             --gpus all \
             -w /workdir \
             --volume {params.ref_path}:/ref_dir \
