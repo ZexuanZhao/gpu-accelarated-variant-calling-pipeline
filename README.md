@@ -1,3 +1,7 @@
+# Variant Calling from Illumina Reads using GPU
+
+Project repository is [here](https://github.com/ZexuanZhao/Pegoscapus-hoffmeyeri-sp.A-genome-paper/tree/main).
+
 ## Description:
  - A GPU-accelarated snakemake workflow that calls variants from multi-sample illumina reads using Deepvariant and GLnexus
 
