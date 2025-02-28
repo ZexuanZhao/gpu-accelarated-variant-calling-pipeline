@@ -21,8 +21,10 @@ Main project repository is [here](https://github.com/ZexuanZhao/Pegoscapus-hoffm
 ## Environment:
  - Make sure snakemake is installed in current environment.
  - Docker is required.
- - Install docker image: `nvcr.io/nvidia/clara/clara-parabricks:4.0.0-1`
- - Install docker image: `google/deepvariant:1.4.0-gpu`
+ - Install docker image: `nvcr.io/nvidia/clara/clara-parabricks:4.4.0-1`
+ - Install docker image: `google/deepvariant:1.8.0_saved_model-gpu`
 
+## Notes:
+ - `clara-parabricks` now require 38Gb memory for `fq2bam`. Therefore, `--low-memory` option is used.
 ## Usage:
 `snakemake --cores [cpu] --use-conda`
