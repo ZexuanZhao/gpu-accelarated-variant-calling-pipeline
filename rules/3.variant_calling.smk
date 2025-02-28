@@ -29,7 +29,7 @@ rule deepvariant:
             --volume {params.ref_path}:/ref_dir \
             --volume {params.bam_path}:/bam_dir \
             --volume {params.tmp_path}:/outputdir \
-            google/deepvariant:1.4.0-gpu \
+            google/deepvariant:1.8.0_saved_model-gpu \
             /opt/deepvariant/bin/run_deepvariant \
                 --model_type=WGS \
                 --ref=/ref_dir/ref.fasta \
