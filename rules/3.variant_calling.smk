@@ -37,6 +37,7 @@ rule deepvariant:
                 --sample_name={params.sample_name} \
                 --output_vcf=/outputdir/{params.out_vcf_name} \
                 --output_gvcf=/outputdir/{params.out_gvcf_name} \
+                --vcf_stats_report \
                 --num_shards={threads} \
             > {log} \
             2> {log}
