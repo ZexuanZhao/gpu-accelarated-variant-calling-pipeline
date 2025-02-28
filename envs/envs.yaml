@@ -11,6 +11,7 @@ dependencies:
   - glnexus
   - jemalloc
   - multiqc
+  - matplotlib
   - pandas
   - samtools
   - vcftools
