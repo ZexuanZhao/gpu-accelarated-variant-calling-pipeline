@@ -48,8 +48,9 @@ rule bwa_gpu:
             --volume {params.ref_path}:/ref_dir \
             --volume {params.read_path}:/read_dir\
             --volume {params.tmp_path}:/outputdir \
-            nvcr.io/nvidia/clara/clara-parabricks:4.0.0-1 \
+            nvcr.io/nvidia/clara/clara-parabricks:4.4.0-1 \
             pbrun fq2bam \
+                --low-memory \
                 --ref /ref_dir/ref.fasta \
                 --in-fq /read_dir/{params.reads_dict[r1_name]} /read_dir/{params.reads_dict[r2_name]} \
                 --out-bam /outputdir/{params.out_bam_name} \
