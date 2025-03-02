@@ -13,8 +13,8 @@ rule deepvariant:
         bam_name = "{sample}.bam",
         tmp_path = os.path.abspath(os.path.join(config["outdir"], "tmp", "deepvariant", "{sample}")),
         out_vcf_path = os.path.join(config["outdir"],"vcf"),
-        out_vcf_name = "{sample}.vcf",
-        out_gvcf_name = "{sample}.gvcf",
+        out_vcf_name = "{sample}.vcf.gz",
+        out_gvcf_name = "{sample}.gvcf.gz",
         out_report_name = "{sample}.visual_report.html"
     log:
         os.path.join(config["outdir"],"logs","deepvariant","{sample}.log")
@@ -49,7 +49,7 @@ rule gvcf2vcf_deepvariant:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        gvcf = expand(os.path.join(config["outdir"],"vcf","{sample}.gvcf"), sample = sample_sheet.index)
+        gvcf = expand(os.path.join(config["outdir"],"vcf","{sample}.gvcf.gz"), sample = sample_sheet.index)
     output:
         vcf = os.path.join(config["outdir"],"vcf", "all.vcf.gz")
     log:
