@@ -3,8 +3,8 @@ rule deepvariant:
         ref = os.path.join(config["outdir"], "ref", "ref.fasta"),
         bam = os.path.join(config["outdir"],"bam","{sample}.bam")
     output:
-        vcf = os.path.join(config["outdir"],"vcf", "{sample}.vcf"),
-        gvcf = os.path.join(config["outdir"],"vcf","{sample}.gvcf"),
+        vcf = os.path.join(config["outdir"],"vcf", "{sample}.vcf.gz"),
+        gvcf = os.path.join(config["outdir"],"vcf","{sample}.gvcf.gz"),
         report = os.path.join(config["outdir"], "qc", "deepvariant", "{sample}.visual_report.html")
     params:
         sample_name = "{sample}",
