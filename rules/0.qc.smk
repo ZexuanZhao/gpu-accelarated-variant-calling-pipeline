@@ -66,6 +66,28 @@ rule genomeCov:
             > {output}
         """
 
+## Qualimap: insert size, GC, coverage...
+rule Qualimap:
+    conda:
+        os.path.join(workflow.basedir,"envs/envs.yaml")
+    input:
+        bam=os.path.join(config["outdir"],"bam","{sample}.bam")
+    output:
+        os.path.join(config["outdir"],"qc","qualimap","{sample}", "qualimapReport.html")
+    params:
+        outdir =  os.path.join(config["outdir"],"qc","qualimap","{sample}")
+    threads:
+        4
+    shell:
+        """
+        qualimap bamqc \
+            -bam {input} \
+            -outdir {params.outdir}\
+            -outformat HTML \
+            -nt {threads}
+        """
+
+
 ## vcf stats using bcftools
 rule vcf_stats:
     conda:
@@ -130,6 +152,7 @@ rule multiqc:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
+        expand(os.path.join(config["outdir"],"qc","qualimap","{sample}", "qualimapReport.html"), sample= sample_sheet.index),
         expand(os.path.join(config["outdir"],"qc", "fastqc", "{sample}.{R}_fastqc.zip"), sample= sample_sheet.index, R=["1P", "2P"]),
         expand(os.path.join(config["outdir"], "qc", "bamtools","{sample}_bamtools.stats"), sample= sample_sheet.index),
         expand(os.path.join(config["outdir"],"qc","fastp","{sample}.fastp.json"), sample= sample_sheet.index),
@@ -144,6 +167,7 @@ rule multiqc:
         1
     shell:
         """
+        rm -rf {params.output_dir}/* ; \
         multiqc \
         -o {params.output_dir} \
         {params.input_dir} ; \

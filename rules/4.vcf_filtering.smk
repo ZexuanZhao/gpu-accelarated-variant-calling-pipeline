@@ -4,7 +4,7 @@ rule filter_biallelic_snp:
     input:
         os.path.join(config["outdir"], "vcf", config["project"]+".vcf.gz")
     output:
-        os.path.join(config["outdir"], "vcf", config["project"]+"biallelic.vcf.gz")
+        os.path.join(config["outdir"], "vcf", config["project"]+".biallelic.vcf.gz")
     shell:
         """
         bcftools view \

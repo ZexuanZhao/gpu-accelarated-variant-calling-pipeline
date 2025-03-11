@@ -22,7 +22,7 @@ rule all:
         multiqc_report = os.path.join(config["outdir"],"qc","multiqc", config["project"]+"_multiqc_report.html"),
         bam_report = expand(os.path.join(config["outdir"],"qc","coverage","{sample}_coverage.txt"), sample = sample_sheet.index),
         vcf_plot = os.path.join(config["outdir"],"qc","bcftools_stats","plot-vcfstats.log"),
-        biallelic_snp = os.path.join(config["outdir"], "vcf", config["project"]+"biallelic.vcf.gz"),
+        biallelic_snp = os.path.join(config["outdir"], "vcf", config["project"]+".biallelic.vcf.gz"),
         het = os.path.join(config["outdir"], "qc", "vcftools", config["project"]+".het")
     shell:
         """
