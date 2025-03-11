@@ -1,20 +1,22 @@
-rule fastqc:
+## Quality check of trimmed reads
+rule fastqc_after_trimming:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        unpack(get_fastq)
+        unpack(get_fastq2)
     output:
-        r1=os.path.join(config["outdir"], "qc", "fastqc", "{sample}" + config["suffix"][0] + "_fastqc.zip"),
-        r2=os.path.join(config["outdir"], "qc", "fastqc", "{sample}" + config["suffix"][1] + "_fastqc.zip"),
+        r1 = os.path.join(config["outdir"],"qc", "fastqc", "{sample}.1P_fastqc.zip"),
+        r2 = os.path.join(config["outdir"],"qc", "fastqc", "{sample}.2P_fastqc.zip"),
     params:
         outdir = os.path.join(config["outdir"], "qc", "fastqc")
     threads:
         2
     shell:
         """
-        fastqc --quiet --outdir {params.outdir} --noextract -f fastq {input} -t 2
+        fastqc --quiet --outdir {params.outdir} --noextract -f fastq {input} -t {threads}
         """
 
+## Mapping rates etc.
 rule bamstats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -22,11 +24,14 @@ rule bamstats:
         os.path.join(config["outdir"], "bam", "{sample}.bam")
     output:
         os.path.join(config["outdir"], "qc", "bamtools", "{sample}_bamtools.stats")
+    threads:
+        1
     shell:
         """
         bamtools stats -in {input} | grep -v "*" > {output}
         """
 
+## Make bed windows for window-based metrics: coverage
 rule make_ref_window:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -36,11 +41,14 @@ rule make_ref_window:
         os.path.join(config["outdir"],"ref","ref.window.bed")
     params:
         w_size = config["w_size"]
+    threads:
+        1
     shell:
         """
         bedtools makewindows -g {input} -w {params.w_size} > {output}
         """
 
+## Coverage
 rule genomeCov:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -50,7 +58,7 @@ rule genomeCov:
     output:
         os.path.join(config["outdir"], "qc", "coverage", "{sample}_coverage.txt")
     threads:
-        config["cpu"]
+        20
     shell:
         """
         bedtools coverage \
@@ -58,6 +66,7 @@ rule genomeCov:
             > {output}
         """
 
+## vcf stats
 rule vcf_stats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -65,11 +74,14 @@ rule vcf_stats:
         vcf = os.path.join(config["outdir"],"vcf","all.vcf.gz")
     output:
         vcf_stat = os.path.join(config["outdir"],"qc","bcftools_stats", "vcf.stats")
+    threads:
+        1
     shell:
         """
-        bcftools stats  {input.vcf} > {output.vcf_stat}
+        bcftools stats {input.vcf} > {output.vcf_stat}
         """
 
+## Visualize vcf stats
 rule plot_vcfstats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -79,6 +91,8 @@ rule plot_vcfstats:
         plot_vcfstats = os.path.join(config["outdir"],"qc","bcftools_stats","plot-vcfstats.log")
     params:
         outdir = os.path.join(config["outdir"],"qc","bcftools_stats")
+    threads:
+        1
     shell:
         """
         plot-vcfstats \
@@ -87,6 +101,7 @@ rule plot_vcfstats:
             {input.vcf_stat}
         """
 
+## Quality check of vcf files
 rule qc_vcf:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -96,6 +111,8 @@ rule qc_vcf:
         os.path.join(config["outdir"], "qc", "vcftools", "heterozygosity.het")
     params:
         outdir = os.path.join(config["outdir"], "qc", "vcftools")
+    threads:
+        1
     shell:
         """
         vcftools --gzvcf {input.vcf} --freq2 --out {params.outdir}/allele_frequency --max-alleles 2
@@ -107,11 +124,12 @@ rule qc_vcf:
         vcftools --gzvcf {input.vcf} --het --out {params.outdir}/heterozygosity
         """
 
+## Summarize all qc files using multiqc
 rule multiqc:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        expand(os.path.join(config["outdir"], "qc", "fastqc", "{sample}{R}_fastqc.zip"), sample= sample_sheet.index, R=config["suffix"]),
+        expand(os.path.join(config["outdir"],"qc", "fastqc", "{sample}.{R}_fastqc.zip"), sample= sample_sheet.index, R=["1P", "2P"]),
         expand(os.path.join(config["outdir"], "qc", "bamtools","{sample}_bamtools.stats"), sample= sample_sheet.index),
         expand(os.path.join(config["outdir"],"qc","fastp","{sample}.fastp.json"), sample= sample_sheet.index),
         os.path.join(config["outdir"],"qc","bcftools_stats","vcf.stats")
@@ -120,6 +138,8 @@ rule multiqc:
     params:
         input_dir = os.path.join(config["outdir"], "qc"),
         output_dir = os.path.join(config["outdir"], "qc", "multiqc"),
+    threads:
+        1
     shell:
         """
         multiqc \

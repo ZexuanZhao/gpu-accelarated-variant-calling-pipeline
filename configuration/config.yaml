@@ -1,0 +1,19 @@
+## A project name for naming summary files
+project: "test"
+
+## Input files
+reference: "test_data/test_mutated.fasta"
+sample_sheet: "test_data/sample_sheet.csv"
+outdir: "test_variant_calling"
+
+## Docker image list
+clara-parabricks: "docker://nvcr.io/nvidia/clara/clara-parabricks:4.4.0-1"
+deepvariant: "docker://google/deepvariant:1.8.0_saved_model-gpu"
+
+## Some parameters
+### windows size for calculate metrics
+w_size: 100*1000
+
+## Set resources (Memory, CPU, GPU) for each rules
+resources: "configuration/define_resources.yaml"
+

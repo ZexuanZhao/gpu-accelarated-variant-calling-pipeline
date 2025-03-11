@@ -5,7 +5,6 @@ Main project repository is [here](https://github.com/ZexuanZhao/Pegoscapus-hoffm
 ## Description:
  - A GPU-accelarated snakemake workflow that calls variants from multi-sample illumina reads using Deepvariant and GLnexus
 
-
 ## Files to prepare:
  - A sample sheet - sample_sheet.csv: a comma delimited file with 3 columns (no column name):
    - sample, path to illumina read1, path to illumina read2
@@ -19,12 +18,9 @@ Main project repository is [here](https://github.com/ZexuanZhao/Pegoscapus-hoffm
    - w_size: non-overlapping window size of reporting average depth along the genome.
 
 ## Environment:
- - Make sure snakemake is installed in current environment.
- - Docker is required.
- - Install docker image: `nvcr.io/nvidia/clara/clara-parabricks:4.4.0-1`
- - Install docker image: `google/deepvariant:1.8.0_saved_model-gpu`
+ - Make sure snakemake and singularity is installed in current environment.
 
 ## Notes:
  - `clara-parabricks` now require 38Gb memory for `fq2bam`. Therefore, `--low-memory` option is used.
 ## Usage:
-`snakemake --cores [cpu] --use-conda`
+`snakemake --use-conda --use-singularity --singularity-args '--nv -B .:/dum' --cores ncpu --resources gpus=ngpu`

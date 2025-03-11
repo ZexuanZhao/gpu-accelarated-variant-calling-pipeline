@@ -25,36 +25,25 @@ rule index_reference:
 rule bwa_gpu:
     input:
         unpack(get_fastq2),
+        copied_ref= os.path.join(config["outdir"],"ref","ref.fasta"),
         ref_bwt = os.path.join(config["outdir"], "ref", "ref.fasta.bwt"),
     output:
         os.path.join(config["outdir"], "bam", "{sample}.bam")
-    params:
-        reads_dict = get_fastq2_basename,
-        ref_path = os.path.abspath(os.path.join(config["outdir"], "ref")),
-        read_path = os.path.abspath(os.path.join(config["outdir"], "trimmed_reads")),
-        tmp_path = os.path.abspath(os.path.join(config["outdir"], "tmp", "bam", "{sample}")),
-        out_bam_path = os.path.join(config["outdir"], "bam"),
-        out_bam_name = "{sample}.bam"
     log:
         os.path.join(config["outdir"],"logs","mapping","{sample}.log")
     threads:
-        config["cpu"]
+        20
+    resources:
+        gpus=1
+    singularity:
+        config["clara-parabricks"]
     shell:
         """
-        docker run \
-            --rm \
-            --gpus all \
-            -w /workdir \
-            --volume {params.ref_path}:/ref_dir \
-            --volume {params.read_path}:/read_dir\
-            --volume {params.tmp_path}:/outputdir \
-            nvcr.io/nvidia/clara/clara-parabricks:4.4.0-1 \
             pbrun fq2bam \
                 --low-memory \
-                --ref /ref_dir/ref.fasta \
-                --in-fq /read_dir/{params.reads_dict[r1_name]} /read_dir/{params.reads_dict[r2_name]} \
-                --out-bam /outputdir/{params.out_bam_name} \
+                --ref {input.copied_ref} \
+                --in-fq {input.r1} {input.r2} \
+                --out-bam {output} \
             > {log} \
             2>{log}
-        cp {params.tmp_path}/* {params.out_bam_path}
         """

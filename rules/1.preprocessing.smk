@@ -13,7 +13,7 @@ rule trim_reads:
     log:
         os.path.join(config["outdir"],"logs", "fastp", "{sample}.log")
     threads:
-        config["cpu"]//sample_sheet.shape[0]
+        2
     shell:
         """
         fastp \

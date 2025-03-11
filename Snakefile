@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import os.path
-
 import pandas as pd
 
-configfile: "config.yaml"
-
-sample_sheet = pd.read_csv(config["sample_sheet"], dtype=str, names = ["sample", "r1", "r2"]).set_index("sample")
+configfile: "configuration/config.yaml"
+sample_sheet = pd.read_csv(config["sample_sheet"],
+    dtype=str,
+    names = ["sample", "r1", "r2"]).set_index("sample")
 
 wildcard_constraints:
     sample = "|".join(sample_sheet.index)
@@ -28,5 +28,4 @@ rule all:
         """
         echo "Job done!"
         echo "Use the following command to clean up temporary files (needs sudo):"
-        echo "sudo rm -rf ../../experiment/variant_calling_snakemake/tmp/"
         """

@@ -19,30 +19,25 @@ rule deepvariant:
     log:
         os.path.join(config["outdir"],"logs","deepvariant","{sample}.log")
     threads:
-        config["cpu"]
+        20
+    resources:
+        gpus=1
+    singularity:
+        config["deepvariant"]
     shell:
         '''
-        docker run \
-            --rm \
-            --gpus all \
-            -w /workdir \
-            --volume {params.ref_path}:/ref_dir \
-            --volume {params.bam_path}:/bam_dir \
-            --volume {params.tmp_path}:/outputdir \
-            google/deepvariant:1.8.0_saved_model-gpu \
             /opt/deepvariant/bin/run_deepvariant \
                 --model_type=WGS \
-                --ref=/ref_dir/ref.fasta \
-                --reads=/bam_dir/{params.bam_name} \
+                --ref={input.ref} \
+                --reads={input.bam} \
                 --sample_name={params.sample_name} \
-                --output_vcf=/outputdir/{params.out_vcf_name} \
-                --output_gvcf=/outputdir/{params.out_gvcf_name} \
+                --output_vcf={output.vcf} \
+                --output_gvcf={output.gvcf} \
                 --vcf_stats_report \
                 --num_shards={threads} \
             > {log} \
-            2> {log}
-        cp {params.tmp_path}/* {params.out_vcf_path}
-        mv {params.out_vcf_path}/{params.out_report_name} {output.report}
+            2> {log} ; \
+            mv {params.out_vcf_path}/{params.out_report_name} {output.report}
         '''
 
 rule gvcf2vcf_deepvariant:
@@ -55,7 +50,7 @@ rule gvcf2vcf_deepvariant:
     log:
         os.path.join(config["outdir"],"logs","deepvariant","glnexus.log")
     threads:
-        config["cpu"]
+        40
     shell:
         '''
         rm -rf ./GLnexus.DB
