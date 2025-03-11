@@ -66,7 +66,7 @@ rule genomeCov:
             > {output}
         """
 
-## vcf stats
+## vcf stats using bcftools
 rule vcf_stats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
@@ -133,7 +133,7 @@ rule multiqc:
         expand(os.path.join(config["outdir"],"qc", "fastqc", "{sample}.{R}_fastqc.zip"), sample= sample_sheet.index, R=["1P", "2P"]),
         expand(os.path.join(config["outdir"], "qc", "bamtools","{sample}_bamtools.stats"), sample= sample_sheet.index),
         expand(os.path.join(config["outdir"],"qc","fastp","{sample}.fastp.json"), sample= sample_sheet.index),
-        os.path.join(config["outdir"],"qc","bcftools_stats","vcf.stats")
+        os.path.join(config["outdir"],"qc","bcftools_stats", config["project"]+".vcf.stats")
     output:
         os.path.join(config["outdir"],"qc","multiqc", config["project"]+"_multiqc_report.html")
     params:
