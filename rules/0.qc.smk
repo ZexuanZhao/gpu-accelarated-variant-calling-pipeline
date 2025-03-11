@@ -71,9 +71,9 @@ rule vcf_stats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        vcf = os.path.join(config["outdir"],"vcf","all.vcf.gz")
+        vcf = os.path.join(config["outdir"],"vcf", config["project"]+".vcf.gz")
     output:
-        vcf_stat = os.path.join(config["outdir"],"qc","bcftools_stats", "vcf.stats")
+        vcf_stat = os.path.join(config["outdir"],"qc","bcftools_stats", config["project"]+".vcf.stats")
     threads:
         1
     shell:
@@ -86,9 +86,9 @@ rule plot_vcfstats:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        vcf_stat = os.path.join(config["outdir"],"qc","bcftools_stats","vcf.stats")
+        vcf_stat = os.path.join(config["outdir"],"qc","bcftools_stats", config["project"]+".vcf.stats")
     output:
-        plot_vcfstats = os.path.join(config["outdir"],"qc","bcftools_stats","plot-vcfstats.log")
+        plot_vcfstats = os.path.join(config["outdir"],"qc","bcftools_stats", "plot-vcfstats.log")
     params:
         outdir = os.path.join(config["outdir"],"qc","bcftools_stats")
     threads:
@@ -101,27 +101,28 @@ rule plot_vcfstats:
             {input.vcf_stat}
         """
 
-## Quality check of vcf files
+## Quality check of vcf files using vcftools
 rule qc_vcf:
     conda:
         os.path.join(workflow.basedir, "envs/envs.yaml")
     input:
-        vcf = os.path.join(config["outdir"],"vcf","all.vcf.gz")
+        vcf = os.path.join(config["outdir"],"vcf", config["project"]+".vcf.gz")
     output:
-        os.path.join(config["outdir"], "qc", "vcftools", "heterozygosity.het")
+        os.path.join(config["outdir"], "qc", "vcftools", config["project"]+".het")
     params:
-        outdir = os.path.join(config["outdir"], "qc", "vcftools")
+        outdir = os.path.join(config["outdir"], "qc", "vcftools"),
+        proj = config["project"]
     threads:
         1
     shell:
         """
-        vcftools --gzvcf {input.vcf} --freq2 --out {params.outdir}/allele_frequency --max-alleles 2
-        vcftools --gzvcf {input.vcf} --depth --out {params.outdir}/depth_per_indv
-        vcftools --gzvcf {input.vcf} --site-mean-depth --out {params.outdir}/depth_per_site
-        vcftools --gzvcf {input.vcf} --site-quality --out {params.outdir}/quality_per_site
-        vcftools --gzvcf {input.vcf} --missing-indv --out {params.outdir}/missing_rate_per_indv
-        vcftools --gzvcf {input.vcf} --missing-site --out {params.outdir}/missing_rate_per_site
-        vcftools --gzvcf {input.vcf} --het --out {params.outdir}/heterozygosity
+        vcftools --gzvcf {input.vcf} --freq2 --max-alleles 2 --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --depth --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --site-mean-depth --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --site-quality --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --missing-indv --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --missing-site --out {params.outdir}/{params.proj}
+        vcftools --gzvcf {input.vcf} --het --out {params.outdir}/{params.proj}
         """
 
 ## Summarize all qc files using multiqc
@@ -134,15 +135,17 @@ rule multiqc:
         expand(os.path.join(config["outdir"],"qc","fastp","{sample}.fastp.json"), sample= sample_sheet.index),
         os.path.join(config["outdir"],"qc","bcftools_stats","vcf.stats")
     output:
-        os.path.join(config["outdir"],"qc", "multiqc", "multiqc_report.html")
+        os.path.join(config["outdir"],"qc","multiqc", config["project"]+"_multiqc_report.html")
     params:
         input_dir = os.path.join(config["outdir"], "qc"),
         output_dir = os.path.join(config["outdir"], "qc", "multiqc"),
+        original_output = os.path.join(config["outdir"],"qc", "multiqc", "multiqc_report.html")
     threads:
         1
     shell:
         """
         multiqc \
         -o {params.output_dir} \
-        {params.input_dir}
+        {params.input_dir} ; \
+        mv {params.original_output} {output}
         """

@@ -13,7 +13,3 @@ deepvariant: "docker://google/deepvariant:1.8.0_saved_model-gpu"
 ## Some parameters
 ### windows size for calculate metrics
 w_size: 100*1000
-
-## Set resources (Memory, CPU, GPU) for each rules
-resources: "configuration/define_resources.yaml"
-

@@ -2,9 +2,9 @@ rule filter_biallelic_snp:
     conda:
         os.path.join(workflow.basedir,"envs/envs.yaml")
     input:
-        os.path.join(config["outdir"],"vcf","all.vcf.gz")
+        os.path.join(config["outdir"], "vcf", config["project"]+".vcf.gz")
     output:
-        os.path.join(config["outdir"], "filtered_vcf", "biallelic_snp.vcf.gz")
+        os.path.join(config["outdir"], "vcf", config["project"]+"biallelic.vcf.gz")
     shell:
         """
         bcftools view \

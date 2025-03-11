@@ -46,7 +46,7 @@ rule gvcf2vcf_deepvariant:
     input:
         gvcf = expand(os.path.join(config["outdir"],"vcf","{sample}.gvcf.gz"), sample = sample_sheet.index)
     output:
-        vcf = os.path.join(config["outdir"],"vcf", "all.vcf.gz")
+        vcf = os.path.join(config["outdir"],"vcf", config["project"]+".vcf.gz")
     log:
         os.path.join(config["outdir"],"logs","deepvariant","glnexus.log")
     threads:
