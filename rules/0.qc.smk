@@ -77,14 +77,19 @@ rule Qualimap:
     params:
         outdir =  os.path.join(config["outdir"],"qc","qualimap","{sample}")
     threads:
-        4
+        10
+    log:
+        os.path.join(config["outdir"],"logs","Qualimap","{sample}.log")
     shell:
         """
         qualimap bamqc \
             -bam {input} \
             -outdir {params.outdir}\
             -outformat HTML \
-            -nt {threads}
+            -nt {threads} \
+            --java-mem-size=50G \
+            > {log} \
+            2>{log}
         """
 
 
